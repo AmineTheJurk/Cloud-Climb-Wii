@@ -31,7 +31,7 @@ LIBS	:= -lgrrlib -lfreetype -lpngu -lpng -lz -ljpeg -lfat -lwiiuse -lbte -logc -
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WIILIB)
+LIBDIRS	:= $(PORTLIBS) $(PORTLIBS)/../wii $(DEVKITPRO)/libogc
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
