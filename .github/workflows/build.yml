@@ -1,0 +1,45 @@
+name: Build CloudClimb
+
+# Builds automatically on every push, and lets you trigger it manually
+# from the Actions tab too.
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # devkitPro publishes an official image with devkitPPC + libogc
+    # pre-installed, so no toolchain setup needed on our side.
+    container: devkitpro/devkitppc:latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install GRRLIB's dependencies (via pacman)
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          dkp-pacman -Sy --noconfirm --needed libfat-ogc ppc-libpng ppc-freetype ppc-libjpeg-turbo
+
+      - name: Build and install GRRLIB itself (distributed as source, not a pacman package)
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITPPC=/opt/devkitpro/devkitPPC
+          git clone --depth 1 https://github.com/GRRLIB/GRRLIB.git /tmp/GRRLIB
+          make -C /tmp/GRRLIB/GRRLIB install
+
+      - name: Build CloudClimb
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITPPC=/opt/devkitpro/devkitPPC
+          make
+
+      - name: Upload .dol artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CloudClimb-dol
+          path: |
+            CloudClimb.dol
+            CloudClimb.elf
+          if-no-files-found: error
