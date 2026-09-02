@@ -84,6 +84,16 @@ DEPENDS	:=	$(OFILES:.o=.d)
 $(OUTPUT).dol: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES)
 
+#---------------------------------------------------------------------------------
+# wii_rules provides the bin2o macro but doesn't ship a pattern rule for
+# turning .png files into .o files -- GRRLIB projects need to add that
+# themselves, one pattern per extension used in DATA.
+#---------------------------------------------------------------------------------
+%.png.o	:	%.png
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
 -include $(DEPENDS)
 
 endif
