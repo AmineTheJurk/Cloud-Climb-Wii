@@ -2,10 +2,9 @@
 	Cloud Climb
 	A vertical-jumper game for Wii homebrew, built with devkitPPC + libogc + GRRLIB.
 
-	Player + background PNGs are embedded directly into the .dol at build
-	time (via the devkitPPC "data" folder mechanism) instead of being loaded
-	from the SD card at runtime. Put these files in data/ before building:
-		data/background.png
+	Player PNGs are embedded directly into the .dol at build time (via the
+	devkitPPC "data" folder mechanism) instead of being loaded from the SD
+	card at runtime. Put these files in data/ before building:
 		data/player_still.png  (standing / near the top of a jump)
 		data/player_move.png   (rising or falling)
 		data/player_death.png  (shown on the Game Over screen)
@@ -16,8 +15,9 @@
 	That symbol is what GRRLIB_LoadTexture() takes directly, no file I/O
 	needed at runtime, and no SD card required to run the game at all.
 
-	Platforms have NO image asset -- they're generated entirely in code as
-	colored rounded bars with randomized width/color per platform.
+	The background has no image asset -- it's a solid sky-blue fill drawn
+	directly in code (see DrawScene). Platforms are the same: no image
+	asset, generated entirely in code as colored rounded bars.
 
 	Controls:
 		D-Pad Left / Right : move player left / right
@@ -33,7 +33,6 @@
 #include <grrlib.h>
 #include <wiiuse/wpad.h>
 
-#include "background_png.h"
 #include "player_still_png.h"
 #include "player_move_png.h"
 #include "player_death_png.h"
@@ -78,7 +77,6 @@ typedef enum { STATE_PLAYING, STATE_GAMEOVER } GameState;
 /*---------------------------------------------------------------------------------
 	Globals
 ---------------------------------------------------------------------------------*/
-static GRRLIB_texImg *texBackground  = NULL;
 static GRRLIB_texImg *texPlayerStill = NULL;
 static GRRLIB_texImg *texPlayerMove  = NULL;
 static GRRLIB_texImg *texPlayerDeath = NULL;
@@ -288,11 +286,7 @@ static void DrawPlayer(void) {
 }
 
 static void DrawScene(void) {
-	if (texBackground) {
-		GRRLIB_DrawImg(0, 0, texBackground, 0, 1, 1, 0xFFFFFFFF);
-	} else {
-		GRRLIB_FillScreen(0x87CEEBFF); /* sky blue fallback */
-	}
+	GRRLIB_FillScreen(0x87CEEBFF); /* solid sky-blue, no image asset */
 
 	for (int i = 0; i < MAX_PLATFORMS; i++) {
 		if (platforms[i].active) DrawPlatform(&platforms[i]);
@@ -334,7 +328,6 @@ int main(int argc, char **argv) {
 
 	/* Decode the PNGs that got embedded into the .dol at build time.
 	   Platforms need no assets at all. */
-	texBackground  = LoadEmbeddedPNG(background_png,    "background.png");
 	texPlayerStill = LoadEmbeddedPNG(player_still_png,  "player_still.png");
 	texPlayerMove  = LoadEmbeddedPNG(player_move_png,   "player_move.png");
 	texPlayerDeath = LoadEmbeddedPNG(player_death_png,  "player_death.png");
@@ -358,7 +351,6 @@ int main(int argc, char **argv) {
 	}
 
 	/* Cleanup */
-	if (texBackground)  GRRLIB_FreeTexture(texBackground);
 	if (texPlayerStill) GRRLIB_FreeTexture(texPlayerStill);
 	if (texPlayerMove)  GRRLIB_FreeTexture(texPlayerMove);
 	if (texPlayerDeath) GRRLIB_FreeTexture(texPlayerDeath);
