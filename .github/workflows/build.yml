@@ -26,7 +26,8 @@ jobs:
         run: |
           export DEVKITPRO=/opt/devkitpro
           export DEVKITPPC=/opt/devkitpro/devkitPPC
-          git clone --depth 1 https://github.com/GRRLIB/GRRLIB.git /tmp/GRRLIB
+          git clone --depth 1 --recursive https://github.com/GRRLIB/GRRLIB.git /tmp/GRRLIB
+          make -C /tmp/GRRLIB/GRRLIB
           make -C /tmp/GRRLIB/GRRLIB install
 
       - name: Build CloudClimb
